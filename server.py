@@ -91,7 +91,6 @@ print(stock_symbols.index('ABB'))
 
 # imports for the google sheets and g drive api
 
-from googleapiclient.discovery import build
 from datetime import datetime
 
 
@@ -970,9 +969,7 @@ import time
 from datetime import datetime
 import pytz
 import pandas as pd
-import gspread
-from gspread.utils import rowcol_to_a1
-from gspread.exceptions import WorksheetNotFound
+
 
 IST = pytz.timezone('Asia/Kolkata')
 
@@ -1439,8 +1436,8 @@ def close_websockets():
         logger.error(f"Error while closing WebSockets: {e}")
 
 
-def run_flask():
-    app.run(port=5000) 
+# def run_flask():
+#     app.run(port=5000) 
 
 # Run WebSockets in separate threads
 threading.Thread(target=run_ws1, daemon=True).start()  # Always running for equity data
@@ -1451,8 +1448,8 @@ threading.Thread(target=run_ws2, daemon=True).start()  # Runs option batches (1s
 
 threading.Thread(target=daily_sheet_writer, daemon=True).start()
 
-flask_thread = threading.Thread(target=run_flask, daemon=True)
-flask_thread.start()
+# flask_thread = threading.Thread(target=run_flask, daemon=True)
+# flask_thread.start()
 
 
 
