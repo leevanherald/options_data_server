@@ -29,6 +29,8 @@ import pyotp
 from logzero import logger
 import os
 
+PORT = os.getenv("PORT")
+
 # Credentials for login
 api_key = os.getenv("API_KEY")
 username = os.getenv("CLIENT_CODE")
@@ -1436,21 +1438,17 @@ def close_websockets():
         logger.error(f"Error while closing WebSockets: {e}")
 
 
-def run_flask():
-    app.run(port=5000) 
 
-# Run WebSockets in separate threads
-threading.Thread(target=run_ws1, daemon=True).start()  # Always running for equity data
-time.sleep(5)  # Small delay before option sockets start
+if __name__ == "__main__":
+    # Run WebSockets in separate threads
+    threading.Thread(target=run_ws1, daemon=True).start()
+    time.sleep(5)
+    threading.Thread(target=run_ws2, daemon=True).start()
+    threading.Thread(target=daily_sheet_writer, daemon=True).start()
 
-threading.Thread(target=run_ws2, daemon=True).start()  # Runs option batches (1st half)
-# threading.Thread(target=run_ws3, daemon=True).start()  # Runs option batches (2nd half)
-
-threading.Thread(target=daily_sheet_writer, daemon=True).start()
-
-flask_thread = threading.Thread(target=run_flask, daemon=True)
-flask_thread.start()
-
+    # Use the PORT from the environment if available (important for Render)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
 # Keep script running
