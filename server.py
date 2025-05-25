@@ -1452,18 +1452,18 @@ if __name__ == "__main__":
 
 
 # Keep script running
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    logger.info("Interrupt received. Closing WebSockets...")
-    close_websockets()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Interrupt received. Closing WebSockets...")
+        close_websockets()
 
 # test_data[test_data['Premium_Rate'] > 1].nlargest(20,'Premium_Rate')
 
-test_data[test_data['Premium_Rate'] > 1].sort_values(by=["Premium_Rate"],ascending=False).head(20)
+# test_data[test_data['Premium_Rate'] > 1].sort_values(by=["Premium_Rate"],ascending=False).head(20)
 
-test_data[(test_data['Premium_Rate'] > 2) & (test_data['Premium_Rate'] < 5)].sort_values(by=["Premium_Rate"],ascending=False).head(20)
+# test_data[(test_data['Premium_Rate'] > 2) & (test_data['Premium_Rate'] < 5)].sort_values(by=["Premium_Rate"],ascending=False).head(20)
 
-test_data[(test_data['Cover'] < 10) ].sort_values(by=["Cover"],ascending=False).head(20)
+# test_data[(test_data['Cover'] < 10) ].sort_values(by=["Cover"],ascending=False).head(20)
 
