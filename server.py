@@ -1436,8 +1436,8 @@ def close_websockets():
         logger.error(f"Error while closing WebSockets: {e}")
 
 
-# def run_flask():
-#     app.run(port=5000) 
+def run_flask():
+    app.run(port=5000) 
 
 # Run WebSockets in separate threads
 threading.Thread(target=run_ws1, daemon=True).start()  # Always running for equity data
@@ -1448,8 +1448,8 @@ threading.Thread(target=run_ws2, daemon=True).start()  # Runs option batches (1s
 
 threading.Thread(target=daily_sheet_writer, daemon=True).start()
 
-# flask_thread = threading.Thread(target=run_flask, daemon=True)
-# flask_thread.start()
+flask_thread = threading.Thread(target=run_flask, daemon=True)
+flask_thread.start()
 
 
 
