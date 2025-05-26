@@ -636,18 +636,18 @@ ws3_completed = False
 from datetime import datetime
 import pytz
 
-def daily_sheet_writer():
-    """Checks the time (IST) and writes data to a new Google Sheet at 3:45 PM IST."""
-    india_tz = pytz.timezone("Asia/Kolkata")
+# def daily_sheet_writer():
+#     """Checks the time (IST) and writes data to a new Google Sheet at 3:45 PM IST."""
+#     india_tz = pytz.timezone("Asia/Kolkata")
 
-    while True:
-        now = datetime.now(india_tz)  # Get current time in IST
-        if now.hour == 15 and now.minute == 45:  # 3:45 PM IST
-            sheet_name = now.strftime("%Y-%m-%d")  # Create sheet name as YYYY-MM-DD
-            logger.info(f"Creating new sheet: {sheet_name} and writing data.")
-            write_to_google_sheet()  # Pass sheet name to function
-            time.sleep(60)  # Wait a minute to prevent multiple writes in the same minute
-        time.sleep(10)  # Check time every 10 seconds
+#     while True:
+#         now = datetime.now(india_tz)  # Get current time in IST
+#         if now.hour == 15 and now.minute == 45:  # 3:45 PM IST
+#             sheet_name = now.strftime("%Y-%m-%d")  # Create sheet name as YYYY-MM-DD
+#             logger.info(f"Creating new sheet: {sheet_name} and writing data.")
+#             write_to_google_sheet()  # Pass sheet name to function
+#             time.sleep(60)  # Wait a minute to prevent multiple writes in the same minute
+#         time.sleep(10)  # Check time every 10 seconds
 
 import copy
 
@@ -780,15 +780,15 @@ def close_websockets():
     except Exception as e:
         logger.error(f"Error while closing WebSockets: {e}")
 
+def start_background_services():
+    threading.Thread(target=run_ws1, daemon=True).start()
+    threading.Thread(target=run_ws2, daemon=True).start()
+
+start_background_services()
+
 
 
 if __name__ == "__main__":
-    # Run WebSockets in separate threads
-    threading.Thread(target=run_ws1, daemon=True).start()
-    time.sleep(5)
-    threading.Thread(target=run_ws2, daemon=True).start()
-    threading.Thread(target=daily_sheet_writer, daemon=True).start()
-
     # Use the PORT from the environment if available (important for Render)
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
