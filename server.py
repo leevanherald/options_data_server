@@ -780,20 +780,14 @@ def close_websockets():
     except Exception as e:
         logger.error(f"Error while closing WebSockets: {e}")
 
-def start_background_services():
+
+if __name__ == "__main__":
+    # Use the PORT from the environment if available (important for Render)
     threading.Thread(target=run_ws1, daemon=True).start()
     threading.Thread(target=run_ws2, daemon=True).start()
 
-@app.before_first_request
-def before_first_request():
-    start_background_services()
-
-
-
-# # if __name__ == "__main__":
-# #     # Use the PORT from the environment if available (important for Render)
-# port = int(os.environ.get("PORT", 5000))
-# app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
 # # Keep script running
