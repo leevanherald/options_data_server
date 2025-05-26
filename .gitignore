@@ -2,3 +2,4 @@
 **/venv
 server_dev.py
 **/logs
+.env
