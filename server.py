@@ -17,6 +17,17 @@ import numpy as np
 import pytz
 from flask import Flask, jsonify
 from flask_cors import CORS
+import signal
+import sys
+
+
+def handle_sigterm(signum, frame):
+    logger.warning("SIGTERM received. Cleaning up...")
+    close_websockets()
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, handle_sigterm)
+
 
 app = Flask(__name__)
 CORS(app)
@@ -68,16 +79,234 @@ token_df = pd.DataFrame.from_dict(d)
 stock_symbols = token_df[(token_df['exch_seg'] == 'NFO') & (token_df['instrumenttype'] == 'OPTSTK')].loc[:,'name'].unique().tolist()
 
 
-tickers = [f"{stock}.NS" for stock in stock_symbols]  # Convert to Yahoo format
-data = yf.Tickers(" ".join(tickers))  # Fetch all at once
+# tickers = [f"{stock}.NS" for stock in stock_symbols]  # Convert to Yahoo format
+# data = yf.Tickers(" ".join(tickers))  # Fetch all at once
 
-sector_market_cap = {}
-for stock in stock_symbols:
-    ticker_data = data.tickers[f"{stock}.NS"]
-    info = ticker_data.info
-    equity_sector = info.get('sector', 'Sector info not available')
-    equity_marketcap = info.get('marketCap', 0) / 1e7  # Market cap in crores
-    sector_market_cap[stock] = [equity_sector, equity_marketcap]
+# sector_market_cap = {}
+# for stock in stock_symbols:
+#     ticker_data = data.tickers[f"{stock}.NS"]
+#     info = ticker_data.info
+#     equity_sector = info.get('sector', 'Sector info not available')
+#     equity_marketcap = info.get('marketCap', 0) / 1e7  # Market cap in crores
+#     sector_market_cap[stock] = [equity_sector, equity_marketcap]
+
+sector_market_cap = {'COALINDIA': ['Energy', 235940.1119744],
+ 'ICICIBANK': ['Financial Services', 925779.7812224],
+ 'KPITTECH': ['Technology', 30399.5977728],
+ 'COFORGE': ['Technology', 43298.586624],
+ 'ICICIGI': ['Financial Services', 88063.1742464],
+ 'LAURUSLABS': ['Healthcare', 31236.1713664],
+ 'COLPAL': ['Consumer Defensive', 66385.281024],
+ 'ICICIPRULI': ['Financial Services', 80504.3175424],
+ 'LICHSGFIN': ['Financial Services', 31125.3106688],
+ 'CONCOR': ['Industrials', 40996.4609536],
+ 'LICI': ['Financial Services', 496386.0217856],
+ 'LODHA': ['Real Estate', 113112.0951296],
+ 'CROMPTON': ['Consumer Cyclical', 21416.3062784],
+ 'LT': ['Industrials', 434711.3242624],
+ 'IDEA': ['Communication Services', 51258.3335936],
+ 'IDFCFIRSTB': ['Financial Services', 42395.0188544],
+ 'CUMMINSIND': ['Industrials', 76162.5116672],
+ 'IEX': ['Financial Services', 15735.1657472],
+ 'LTF': ['Financial Services', 38504.0449536],
+ 'CYIENT': ['Industrials', 12699.5636224],
+ 'LTIM': ['Technology', 123947.58144],
+ 'IGL': ['Utilities', 25222.4012288],
+ 'LUPIN': ['Healthcare', 90520.8594432],
+ 'IIFL': ['Financial Services', 14182.0116992],
+ 'DABUR': ['Consumer Defensive', 81358.2057472],
+ 'M&M': ['Consumer Cyclical', 302676.4693504],
+ 'INDHOTEL': ['Consumer Cyclical', 110116.53632],
+ 'M&MFIN': ['Financial Services', 31957.3983232],
+ 'INDIANB': ['Financial Services', 73685.4474752],
+ 'DALBHARAT': ['Basic Materials', 33924.1009152],
+ 'MANAPPURAM': ['Financial Services', 19388.440576],
+ 'DEEPAKNTR': ['Basic Materials', 24944.3254272],
+ 'DELHIVERY': ['Industrials', 18564.4302336],
+ 'INDIGO': ['Industrials', 199280.2697216],
+ 'MARICO': ['Consumer Defensive', 87818.6921984],
+ 'MARUTI': ['Consumer Cyclical', 360271.2625152],
+ 'DIVISLAB': ['Healthcare', 143016.1063936],
+ 'MAXHEALTH': ['Healthcare', 104354.578432],
+ 'DIXON': ['Technology', 78281.572352],
+ 'INDUSINDBK': ['Financial Services', 52948.4087296],
+ 'DLF': ['Real Estate', 153878.3707136],
+ 'MCX': ['Financial Services', 26466.4006656],
+ 'DMART': ['Consumer Defensive', 263863.0617088],
+ 'INDUSTOWER': ['Communication Services', 97763.0134272],
+ 'MFSL': ['Financial Services', 39143.1847936],
+ 'DRREDDY': ['Healthcare', 92372.7757312],
+ 'MGL': ['Utilities', 12956.6834688],
+ 'INFY': ['Technology', 591963.3047552],
+ 'MOTHERSON': ['Consumer Cyclical', 80938.5525248],
+ 'INOXWIND': ['Industrials', 18880.4661248],
+ 'MPHASIS': ['Technology', 41143.1632896],
+ 'EICHERMOT': ['Consumer Cyclical', 143424.7888896],
+ 'IOC': ['Energy', 184959.4609664],
+ 'MRF': ['Consumer Cyclical', 47774.3054848],
+ 'ESCORTS': ['Industrials', 33853.145088],
+ 'EXIDEIND': ['Consumer Cyclical', 30451.859456],
+ 'MUTHOOTFIN': ['Financial Services', 92172.3142144],
+ 'FEDERALBNK': ['Financial Services', 46769.209344],
+ 'NATIONALUM': ['Basic Materials', 26949.1945472],
+ 'NAUKRI': ['Communication Services', 85940.6139392],
+ 'IRCTC': ['Industrials', 57116.000256],
+ 'IRB': ['Industrials', 27642.2656],
+ 'GAIL': ['Utilities', 113466.1599232],
+ 'NBCC': ['Industrials', 22428.8997376],
+ 'NCC': ['Industrials', 12872.1190912],
+ 'IREDA': ['Financial Services', 41365.0354176],
+ 'GLENMARK': ['Healthcare', 40657.649664],
+ 'IRFC': ['Financial Services', 162758.1448192],
+ 'NESTLEIND': ['Consumer Defensive', 219384.2765824],
+ 'GMRAIRPORT': ['Industrials', 90229.5781376],
+ 'ITC': ['Consumer Defensive', 516269.1723264],
+ 'JINDALSTEL': ['Basic Materials', 81170.4713216],
+ 'NHPC': ['Utilities', 84027.9916544],
+ 'NMDC': ['Basic Materials', 54166.5132544],
+ 'GODREJCP': ['Consumer Defensive', 122479.8765056],
+ 'JIOFIN': ['Financial Services', 142824.9378816],
+ 'GODREJPROP': ['Real Estate', 59470.4859136],
+ 'NTPC': ['Utilities', 342439.493632],
+ 'GRANULES': ['Healthcare', 10777.4427136],
+ 'GRASIM': ['Basic Materials', 170017.3709312],
+ 'JSL': ['Basic Materials', 43094.4681984],
+ 'NYKAA': ['Consumer Cyclical', 50564.1107456],
+ 'JSWENERGY': ['Utilities', 85556.9596416],
+ 'HAL': ['Industrials', 270467.0982144],
+ 'OBEROIRLTY': ['Real Estate', 55562.0171776],
+ 'JSWSTEEL': ['Basic Materials', 232916.6741504],
+ 'OFSS': ['Technology', 65557.7055232],
+ 'HAVELLS': ['Industrials', 91812.8099328],
+ 'JUBLFOOD': ['Consumer Cyclical', 44844.826624],
+ 'OIL': ['Energy', 57534.2379008],
+ 'ONGC': ['Energy', 285222.1616128],
+ 'KOTAKBANK': ['Financial Services', 408598.740992],
+ 'KALYANKJIL': ['Consumer Cyclical', 50788.1259008],
+ 'HCLTECH': ['Technology', 380345.7257472],
+ 'KEI': ['Industrials', 24748.6595072],
+ 'PAGEIND': ['Consumer Cyclical', 46579.6661248],
+ 'HDFCAMC': ['Financial Services', 82036.129792],
+ 'HDFCBANK': ['Financial Services', 1353789.0009088],
+ 'PATANJALI': ['Consumer Defensive', 65810.6810368],
+ 'PAYTM': ['Technology', 52030.1314048],
+ 'HEROMOTOCO': ['Consumer Cyclical', 71486.930944],
+ 'PEL': ['Financial Services', 21726.1359104],
+ 'HFCL': ['Technology', 10971.3580032],
+ 'PERSISTENT': ['Technology', 70837.4626304],
+ 'PETRONET': ['Energy', 42818.3912448],
+ 'HINDALCO': ['Basic Materials', 126179.9473152],
+ 'PFC': ['Financial Services', 131542.2208],
+ 'HINDCOPPER': ['Basic Materials', 18619.0790656],
+ 'PHOENIXLTD': ['Real Estate', 56282.4282112],
+ 'HINDPETRO': ['Energy', 78548.4742656],
+ 'PIDILITIND': ['Basic Materials', 149082.472448],
+ 'HINDUNILVR': ['Consumer Defensive', 538058.4767488],
+ 'HUDCO': ['Financial Services', 41441.3324288],
+ 'PIIND': ['Basic Materials', 49714.593792],
+ 'PNB': ['Financial Services', 111377.6979968],
+ 'POLICYBZR': ['Financial Services', 70214.320128],
+ 'POLYCAB': ['Industrials', 75003.16672],
+ 'POONAWALLA': ['Financial Services', 27400.511488],
+ 'POWERGRID': ['Utilities', 268740.85376],
+ 'PRESTIGE': ['Real Estate', 46853.48864],
+ 'RAMCOCEM': ['Basic Materials', 22067.3097728],
+ 'RBLBANK': ['Financial Services', 10320.4773888],
+ 'RECLTD': ['Financial Services', 104236.0172544],
+ 'RELIANCE': ['Energy', 1599800.2397184],
+ 'SAIL': ['Basic Materials', 43300.3462656],
+ 'SBICARD': ['Financial Services', 80631.5819008],
+ 'SBILIFE': ['Financial Services', 149189.8597376],
+ 'SBIN': ['Financial Services', 685946.2803456],
+ 'SHREECEM': ['Basic Materials', 109823.983616],
+ 'SHRIRAMFIN': ['Financial Services', 120616.976384],
+ 'HDFCLIFE': ['Financial Services', 147692.7291392],
+ 'SIEMENS': ['Industrials', 98489.0802176],
+ 'SJVN': ['Utilities', 35603.9852032],
+ 'SOLARINDS': ['Basic Materials', 98912.4624384],
+ 'SONACOMS': ['Consumer Cyclical', 25571.418112],
+ 'SRF': ['Industrials', 81817.7441792],
+ 'SUNPHARMA': ['Healthcare', 405090.8872704],
+ 'SUPREMEIND': ['Industrials', 40773.6745984],
+ 'SYNGENE': ['Healthcare', 27912.4344832],
+ 'TATACHEM': ['Basic Materials', 20668.973056],
+ 'TATACOMM': ['Communication Services', 44921.864192],
+ 'TATACONSUM': ['Consumer Defensive', 105902.145536],
+ 'TATAELXSI': ['Technology', 30369.6183296],
+ 'TATAMOTORS': ['Consumer Cyclical', 216776.2845696],
+ 'TATAPOWER': ['Utilities', 114936.38144],
+ 'TATASTEEL': ['Basic Materials', 162482.6052608],
+ 'PNBHOUSING': ['Financial Services', 25059.3673216],
+ 'TATATECH': ['Technology', 24997.4751232],
+ 'TCS': ['Technology', 1191418.8947456],
+ 'TECHM': ['Technology', 116378.4224768],
+ 'TIINDIA': ['Industrials', 49732.6391296],
+ 'TITAGARH': ['Industrials', 10217.7169408],
+ 'TITAN': ['Consumer Cyclical', 276962.0566016],
+ 'TORNTPHARM': ['Healthcare', 109879.5515904],
+ 'TORNTPOWER': ['Utilities', 76076.908544],
+ 'TRENT': ['Consumer Cyclical', 169467.772928],
+ 'TVSMOTOR': ['Consumer Cyclical', 115724.0193024],
+ 'ULTRACEMCO': ['Basic Materials', 331531.55072],
+ 'UNIONBANK': ['Financial Services', 92338.3169024],
+ 'UNITDSPR': ['Consumer Defensive', 101189.9301888],
+ 'UPL': ['Basic Materials', 49965.3640192],
+ 'VBL': ['Consumer Defensive', 182756.2717184],
+ 'VEDL': ['Basic Materials', 146905.4189568],
+ 'VOLTAS': ['Consumer Cyclical', 43698.3267328],
+ 'WIPRO': ['Technology', 258633.367552],
+ 'YESBANK': ['Financial Services', 53866.9252608],
+ 'ZOMATO': ['Consumer Cyclical', 195351.1899136],
+ 'ZYDUSLIFE': ['Healthcare', 86445.2214784],
+ 'CDSL': ['Financial Services', 24493.7539584],
+ 'BALKRISIND': ['Consumer Cyclical', 44851.478528],
+ 'BANKINDIA': ['Financial Services', 49798.9943296],
+ 'AARTIIND': ['Basic Materials', 13210.578944],
+ 'BIOCON': ['Healthcare', 38608.961536],
+ 'CHAMBLFERT': ['Basic Materials', 25309.2691968],
+ 'BHARATFORG': ['Consumer Cyclical', 46425.423872],
+ 'ADANIENSOL': ['Utilities', 101089.4045184],
+ 'ABB': ['Industrials', 107438.7091456],
+ 'ABCAPITAL': ['Financial Services', 47974.2001152],
+ 'ABFRL': ['Consumer Cyclical', 30262.5062912],
+ 'ACC': ['Basic Materials', 37060.706304],
+ 'ADANIENT': ['Energy', 263881.7787904],
+ 'ADANIGREEN': ['Utilities', 138729.3442048],
+ 'ADANIPORTS': ['Industrials', 244574.1129728],
+ 'ALKEM': ['Healthcare', 57835.3823744],
+ 'AMBUJACEM': ['Basic Materials', 132220.2693632],
+ 'ANGELONE': ['Financial Services', 20096.7356416],
+ 'APLAPOLLO': ['Basic Materials', 40785.0713088],
+ 'APOLLOHOSP': ['Healthcare', 97135.3882624],
+ 'APOLLOTYRE': ['Consumer Cyclical', 25496.1303552],
+ 'ASHOKLEY': ['Industrials', 59313.0815488],
+ 'ASIANPAINT': ['Basic Materials', 229536.2748416],
+ 'ASTRAL': ['Industrials', 34100.527104],
+ 'ATGL': ['Utilities', 64350.3489024],
+ 'AUBANK': ['Financial Services', 40636.5601792],
+ 'CGPOWER': ['Industrials', 83996.1214976],
+ 'BSOFT': ['Technology', 9905.3182976],
+ 'AUROPHARMA': ['Healthcare', 63713.9746816],
+ 'AXISBANK': ['Financial Services', 334167.9853568],
+ 'BAJAJ-AUTO': ['Consumer Cyclical', 209455.0089728],
+ 'BAJAJFINSV': ['Financial Services', 303821.1473408],
+ 'BAJFINANCE': ['Financial Services', 548048.7845888],
+ 'BANDHANBNK': ['Financial Services', 24179.5514368],
+ 'BANKBARODA': ['Financial Services', 121961.3425664],
+ 'BEL': ['Industrials', 205733.7700352],
+ 'BERGEPAINT': ['Basic Materials', 62436.0226816],
+ 'BHARTIARTL': ['Communication Services', 1030144.5505024],
+ 'BHEL': ['Industrials', 73538.9548544],
+ 'BOSCHLTD': ['Consumer Cyclical', 78206.1142016],
+ 'BPCL': ['Energy', 122465.550336],
+ 'BRITANNIA': ['Consumer Defensive', 124759.1530496],
+ 'BSE': ['Financial Services', 74973.937664],
+ 'CAMS': ['Technology', 17663.5543552],
+ 'CANBK': ['Financial Services', 81118.8289536],
+ 'CESC': ['Utilities', 19937.8993152],
+ 'CHOLAFIN': ['Financial Services', 123054.9024768],
+ 'CIPLA': ['Healthcare', 115695.1834624],
+ 'HINDZINC': ['Basic Materials', 174104.3007488]}
 
 
 equity_data = token_df[(token_df['exch_seg'] == "NSE") & (token_df['instrumenttype'] == '')]
@@ -741,8 +970,8 @@ def on_error(wsapp, error):
     logger.error(f"WebSocket Error: {error}")
 
 
-def on_close(wsapp):
-    logger.info("WebSocket Closed")
+def on_close(wsapp, close_status_code, close_msg):
+    logger.info(f"WebSocket Closed: code={close_status_code}, msg={close_msg}")
 
 
 # Initialize WebSocket connections
@@ -769,17 +998,9 @@ def run_ws2():
 
 def close_websockets():
     try:
-        # Close WebSocket 1
         sws1.close_connection()
-        logger.info("WebSocket 1 disconnected successfully.")
-
-        # Close WebSocket 2
         sws2.close_connection()
-        logger.info("WebSocket 2 disconnected successfully.")
-
-        # # Close WebSocket 3
-        # sws3.close_connection()
-        # logger.info("WebSocket 3 disconnected successfully.")
+        logger.info("WebSockets disconnected successfully.")
     except Exception as e:
         logger.error(f"Error while closing WebSockets: {e}")
 
